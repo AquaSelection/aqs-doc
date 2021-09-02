@@ -12,7 +12,7 @@
 
 ## 配置文件
 
-`/shared/jiaoyi/strategy_conf.json`，
+`/shared/jiaoyi/strategy_conf.json`
 
 ## simple
 
@@ -81,26 +81,32 @@
 ## 交互
 
 ### 启动 launcher commander
-from aqs_trade.launcher_cli import LauncherCli
-lc=LauncherCli()
+
+`from aqs_trade.launcher_cli import LauncherCli`
+
+`lc=LauncherCli()`
 
 ### 设置策略是否实盘
-lc.set_live(live=0, sid='all')
+
+`lc.set_live(live=0, sid='all')`
 
 ### 改变信号个数
-lc.sig_count(count, sid) 
+
+`lc.sig_count(count, sid)`
     
 注意`count`是增量, 例如原来`sigcout`为`1`，`count`填`1`时，`sigcount`为`2`，`count`填`-1`，`sigcount`为`0`
 
 ### 改变信号有效时段
-lc.sig_time(stime, etime, sid)
+
+`lc.sig_time(stime, etime, sid)`
 
 ### 平仓
-lc.flatten(sid='all', ratio=1, live=0)
 
-`sid`可以填具体策略名，默认所有策略，`ratio`为平仓比例，默认为1，`live`为平仓后是否继续交易，默认改为`0``
+`lc.flatten(sid='all', ratio=1, live=0)`
+
+`sid`可以填具体策略名，默认所有策略，`ratio`为平仓比例，默认为`1`，`live`为平仓后是否继续交易，默认改为`0`
 
 ## 注意事项
 
 1. 如果是手动起的策略，需要把定时任务起的策略进程杀掉，以免跑两次策略
-2. 为了安全，`lc``交互每次只能有一个人用，第二个人使用无效
+2. 为了安全，`lc`交互每次只能有一个人用，第二个人使用无效
