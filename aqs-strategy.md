@@ -12,7 +12,7 @@
 
 ## 配置文件
 
-`/shared/jiaoyi/strategy_conf.json`
+`/shared/jiaoyi/strategy_conf.json`，
 
 ## simple
 
@@ -72,7 +72,7 @@
 
 `market_value`: 信号下单的合约市值，注意单位是万元，如果填`20`，表示市值为`200000`
 
-`wait_time`: 转市价的时间(已弃用)
+`wait_time`: 转市价的时间
 
 `open_long, flat_long, open_short, flat_short`: 策略信号参数
 
@@ -82,39 +82,42 @@
 
 ### 启动 launcher commander
 
-`from aqs_trade.launcher_cli import LauncherCli`
+from aqs_trade.launcher_cli import LauncherCli
 
-`lc=LauncherCli()`
+lc=LauncherCli()
 
-### 设置策略是否实盘
+### 改变信号个数(适用于于simple)
 
-`lc.set_live(live=0, sid='all')`
-
-### 改变信号个数
-
-`lc.sig_count(count, sid)`
-    
+lc.sig_count(sid, count)
+        
 注意`count`是增量, 例如原来`sigcout`为`1`，`count`填`1`时，`sigcount`为`2`，`count`填`-1`，`sigcount`为`0`
 
-### 改变信号有效时段
+### 改变信号有效时段(适用于simple)
 
-`lc.sig_time(stime, etime, sid)`
+lc.sig_time(sid, stime, etime)
 
-### 平仓
+### 设置策略是否实盘(适于于所有类型策略)
 
-`lc.flatten(sid='all', ratio=1, live=0)`
+lc.set_live(sid='all', live=0)
 
-`sid`可以填具体策略名，默认所有策略，`ratio`为平仓比例，默认为`1`，`live`为平仓后是否继续交易，默认改为`0`
+`sid`为策略名称或板块
 
-### 设置策略信号方向
+### 平仓(适用于所有策略)
 
-`lc.set_dir(sid, trade_dir=0)`
+lc.flatten(sid='all', ratio=1, direction=0, live=0)
 
-`sid`为策略名称，`trade_dir`为开仓方向，`0`表示多空都做，`1`表示只做多，`-1`表示只做空(目前只针对`longterm`)
+`sid`可以填具体策略名或板块，默认所有策略，`ratio`为平仓比例，默认为`1`，`live`为平仓后是否继续交易，默认改为`0`, `direction`表示策略仓位方向，`0`表示全平，`1`表示只平多头策略，`-1`表示只平空头策略
 
+### 设置策略信号方向(适用于所有策略)
+
+`lc.set_dir(sid='all', trade_dir=0)`
+
+`sid`为策略名称或板块,`trade_dir`为开仓方向，`0`表示多空都做，`1`表示只做多，`-1`表示只做空(目前只针对`longterm`)
 
 ## 注意事项
 
 1. 如果是手动起的策略，需要把定时任务起的策略进程杀掉，以免跑两次策略
+    
 2. 为了安全，`lc`交互每次只能有一个人用，第二个人使用无效
-3. 同一台机器，在不同的账户下可以跑各自的策略，不影响交互，单同一个账户下不可以
+    
+3. `lc.set_live`, `lc.flatten`, `lc.set_dir`中的`sid`除了填`all`和具体的策略名(如`longterm_i`)等，还可以填板块名称，如`hs`代表黑色斑块,`ncp`代表农产品，但是板块目前只可以应用于`longterm`策略
