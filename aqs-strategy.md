@@ -1,123 +1,76 @@
 # aqs_strategy
 
-## 启动
-
-### 单进程启动所有策略
-
-`nohup aqs_launcher.py &`
-
-### 每个进程启动一个策略
-
-`nohup aqs_launcher.py -s simple1_i -m mp &`
-
 ## 配置文件
 
 `/shared/jiaoyi/strategy_conf.json`，
-
-## simple
-
-### 策略名称
-
-`simple1_i, simple1_j...`，每个策略只运行一个合约
-
-### 具体配置：
-
-`path`: 数据回放的路径，注意只有`backtrade`为`1`时才有效
-
-`backtrade`: `1`表示回放数据，回放数据时`live`填`1`或者`0`都不会跑实盘
-
-`broker`: 交易的账户，可以填多个
-
-`flatten`: 是否开启盘尾自动平仓
-
-`live`: `1`表示实际交易，`0`只跑信号，主要`live`生效`backtrade`必须为`0``
-
-`session`: `night`为夜盘，`day`为日盘
-
-`contract`: 交易合约，一个策略只交易一个合约
-
-`stime, etime`: 信号有效的区间
-
-`sig_count`: 交易的信号个数
-
-`vol`: 每个信号交易的手数
-
-`instr_multiply`: 合约价格校准参数
-
-`wait_time`: 转市价的时间
-
-其他参数为策略参数，需要咨询策略开发人员修改
-
-## longterm
-
-### 策略名称
-
-`longterm_i, longterm_j...`，每个策略只运行一个合约
-
-### 具体配置：
-
-`path`: 数据回放的路径，注意只有`backtrade`为`1`时才有效
-
-`backtrade`: `1`表示回放数据，回放数据时`live`填`1`或者`0`都不会跑实盘
-
-`flatten`: 是否开启盘尾自动平仓
-
-`broker`: 交易的账户，可以填多个
-
-`live`: `1`表示实际交易，`0`只跑信号，主要`live`生效`backtrade`必须为`0`
-
-`session`: `night`为夜盘，`day`为日盘
-
-`end_check`: 该品种的夜盘休盘时间
-
-`market_value`: 信号下单的合约市值，注意单位是万元，如果填`20`，表示市值为`200000`
-
-`wait_time`: 转市价的时间
-
-`open_long, flat_long, open_short, flat_short`: 策略信号参数
-
-`prev_vol, prev_open, prev_high, prev_low, prev_close`: 开盘前20个半小时线数据，分别为成交量和开高低收
 
 ## 交互
 
 ### 启动 launcher commander
 
-from aqs_trade.launcher_cli import LauncherCli
+from aqs_strategy.st_cli import LauncherCli
 
 lc=LauncherCli()
 
-### 改变信号个数(适用于于simple)
+help(tc) 查看接口详细用法和参数说明
 
-lc.sig_count(sid, count)
+### lc.set_flag 使用方式, 向策略推送消息,消息内容为k-v键值对
+
+```python
+### 导入相关模块
+
+data = {'key1': 1, 'key2': 2}
+lc.set_flag(strategy='longterm_i', kwargs=**data)
+
+from aqs_strategy.st_base import Strategy, Config
+
+class Sample(Strategy):
+    def __init__(self, sid, conf):
+        super(Sample, self).__init__(sid, conf)
+        self._value = 0
+
+    def sample_run(self):
+        self.run()
+        strategy1 = 'longterm_i'
+        data1 = {'key1': 1, 'key2': 2}
+        self._cli.set_info(strategy1, **data1)
+
+        strategy2 = 'longterm_i'
+        data2 = {'dir': 0 , 'key3': 3}
+        self._cli.set_info(strategy2, **data2)
+
+        strategy3 = 'hs'
+        data3 = {'live': 1, 'key4': 4}
+        self._cli.set_info(strategy3, **data3)
+
+        strategy4 = 'all'
+        data4 = {'dir': 1, 'key5': 5}
+        self._cli.set_info(strategy4, **data4)
         
-注意`count`是增量, 例如原来`sigcout`为`1`，`count`填`1`时，`sigcount`为`2`，`count`填`-1`，`sigcount`为`0`
+        #print
+        val = self.get_flag()
+        print('val: %s' % (val))
 
-### 改变信号有效时段(适用于simple)
+        #open
+        self._cli.new_signal(sid='longterm_i', contract='i2205', market_value=1000000, sig_px=853, wait_time=3, is_best=0)
+        time.sleep(6)
+        self._cli.new_signal(sid='longterm_i', contract='i2205', market_value=1000000, sig_px=853, wait_time=3, is_best=1)
+        time.sleep(6)
 
-lc.sig_time(sid, stime, etime)
-
-### 设置策略是否实盘(适于于所有类型策略)
-
-lc.set_live(sid='all', live=0)
-
-`sid`为策略名称或板块
-
-### 平仓(适用于所有策略)
-
-lc.flatten(sid='all', ratio=1, direction=0, live=0)
-
-`sid`可以填具体策略名或板块，默认所有策略，`ratio`为平仓比例，默认为`1`，`live`为平仓后是否继续交易，默认改为`0`, `direction`表示策略仓位方向，`0`表示全平，`1`表示只平多头策略，`-1`表示只平空头策略
-
-### 设置策略信号方向(适用于所有策略)
-
-`lc.set_dir(sid='all', trade_dir=0)`
-
-`sid`为策略名称或板块,`trade_dir`为开仓方向，`0`表示多空都做，`1`表示只做多，`-1`表示只做空(目前只针对`longterm`)
+        #flatten
+        self._cli.flatten(sid='longterm_i', ratio=0.5, direction=0, is_best=1)
+        time.sleep(6)
+        self._cli.flatten(sid='longterm_i', ratio=0.5, direction=0, is_best=0)
+        time.sleep(6)
+    
+if __name__ == '__main__':
+    config = Config['longterm_i']
+    strategy = 'longterm_i'
+    s1 = Sample(strategy, config)
+    s1.sample_run()
+    val = s1.get_info() # val(dict) 
+```
 
 ## 注意事项
 
-1. 如果是手动起的策略，需要把定时任务起的策略进程杀掉，以免跑两次策略
-    
-2. 为了安全，`lc`交互每次只能有一个人用，第二个人使用无效
-    
-3. `lc.set_live`, `lc.flatten`, `lc.set_dir`中的`sid`除了填`all`和具体的策略名(如`longterm_i`)等，还可以填板块名称，如`hs`代表黑色斑块,`ncp`代表农产品，但是板块目前只可以应用于`longterm`策略
+`lc.set_live`, `lc.flatten`, `lc.set_dir`中的`sid`除了填`all`和具体的策略名(如`longterm_i`)等，还可以填板块名称，如`hs`代表黑色板块,`ncp`代表农产品
