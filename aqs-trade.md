@@ -125,7 +125,282 @@ task_launch_trader.sh MD(eg: SJWX1)
 
 > tc接口里面的contract可以填合约的简化的别名，参数在list_contract里指定
 
-> tc所有功能接口和参数信息可以在help(tc)中详细查看
+
+## 接口说明：
+
+```python
+limit(contract, price, volume, isopen, time, brokers, use_multi=0, to_twap=1, delay=0, strategy='trader')
+    """Place limit order.
+
+    limit首次下单手数为twap算出来的第一次下单手数，并不是一次性全部挂出去
+    Args:
+        contract (str): Specify the contract to place order. E.g., 'IF2012'
+        price (float): 限价单价格，如果填0，只使用对手价. E.g., 2511.0
+        volume (int): Specify the volume to place order. E.g., 1
+        isopen (int): 0 is False, 1 is True, 默认系统根据合约净仓位自动判断
+        time (float): limit转(market/best/twap)时间，0表示不转，默认从配置文件中的list_contract读取，转twap和转limit读取的时间相同
+        brokers (list): A list of brokers to place order, 默认从running_brokers中读取
+        use_multi(0/1): 首次挂单手数是否使用use_mulit乘数，从配置文件读取
+        to_twap(0/1): 是否转twap, twap参数从配置文件twap_params中读取
+        delay(int): 忽略该参数，不使用
+        strategy (str, optional): Specify the strategy.
+    """
+
+market(contract, volume, isopen=-1, brokers=None, strategy='trader')
+    """Place market order.
+
+    Args:
+        contract (str): Specify the contract to place order. E.g., 'IF2012'
+        volume (int): Specify the volume to place order. E.g., 1
+        isopen (int): 0 is False, 1 is True, 默认系统根据合约净仓位自动判断
+        brokers (list): A list of brokers to place order, 默认从running_brokers中读取
+        strategy (str, optional): Specify the strategy.
+    """
+
+query_order(brokers=None, strategies=[], done=1, detail=1)
+    """Query order info.
+
+    Args:
+        brokers (list): A list of brokers to place order, 默认从running_brokers中读取
+        strategies (list, optional): A list of strategies.
+        done (int, optional): If done is 1, show all orders. If done is 0, show unfinished orders.
+        detail (int, optional): If detail is 1, show all sub orders. If detail is 0, show aggregated orders.
+    """
+
+cancel(ids=[], market=0, brokers=None)
+    """Cancel order by broker or id.
+
+    Args:
+        ids (list, optional): Cancel all orders of these ids. Defaults to empty list, will apply to all ids.
+        market (int, optional): Whether to place another order after cancel. 0 is False, 1 is market order, 2 is best order, 3 is twap order. Defaults to 0, just cancel order.
+        brokers (list, optional): A list of brokers to cancel and place order. Defaults to empty list, will apply to all brokers.
+        """
+
+flatten(ratio, contracts, brokers=None, strategies=[], twap=1, pos_dir=0, end=False)
+    """Flatten positions. If end is True, the flatten time is loaded from config file.
+
+    contracts为合约list，如果想全平，可以填all，也可以填空列表[]
+    Args:
+        ratio (int, optional): The ratio of positions to be flattened.
+        contracts (list or str): A list of contracts or 'all'.
+        brokers (list): A list of brokers to flatten order, 默认从running_brokers中读取
+        strategies (list, optional): A list of strategies, will flatten order according to the order of this strategy list.
+        twap(0/1): 是否转twap, twap参数从配置文件twap_params中读取
+        pos_dir(0/1/2): 1平多头仓位，2平空头仓位，0全平
+        end (bool, optional): If False, flatten order at once. If True, wait until the market is going to close, and then flatten order.
+    """
+       
+flatten_by_job_id(job_list, ratio=1, twap=0, end=False)
+    """
+    平仓具体指令或者信号，如果该信号的单还在挂着，则先撤单再平仓
+    Args:
+        job_list(list): cmd_id list
+        ratio (int, optional): The ratio of positions to be flattened.
+        twap(0/1): 是否转twap, twap参数从配置文件twap_params中读取
+    """
+
+bestft(ratio, contracts, brokers=None, strategies=[], twap=0, pos_dir=0)
+    """Flatten positions by placing best order.
+
+    contracts为合约list，如果想全平，可以填all，也可以填空列表[],
+    转对手价时间从list_contract中读取
+    Args:
+        ratio (int, optional): The ratio of positions to be flattened.
+        contracts (list or str): A list of contracts or 'all'.
+        brokers (list, optional): A list of brokers to flatten order.
+        strategies (list, optional): A list of strategies, will flatten order according to the order of this strategy list.
+        twap(0/1): 是否转twap, twap参数从配置文件twap_params中读取
+        pos_dir(0/1/2): 1平多头仓位，2平空头仓位，0全平
+    """
+
+marketmv(contract, mv, isopen=-1, brokers=None, strategy='trader')
+    """Place market order by market value.
+
+    Args:
+        contract (str): Specify the contract to place order. E.g., 'IF2012'
+        mv (float): Specify the market value you want to pay for the contract.
+        isopen (int): 0 is False, 1 is True.
+        brokers (list, optional): A list of brokers to place order.
+        strategy (str, optional): Specify the strategy.
+    """
+
+limitmv(contract, price, mv, isopen, time, brokers, use_multi=0, to_twap=1, delay=0, strategy='trader')
+    """Place limit order by market value.
+
+    Args:
+        contract (str): Specify the contract to place order. E.g., 'IF2012'
+        price (float): 限价单价格，如果填0，只使用对手价. E.g., 2511.0
+        mv (float): Specify the market value you want to pay for the contract.
+        isopen (int): 0 is False, 1 is True, 默认系统根据合约净仓位自动判断
+        time (float): limit转(market/best/twap)时间，0表示不转，默认从配置文件中的list_contract读取，转twap和转limit读取的时间相同
+        brokers (list): A list of brokers to place order.
+        use_multi(0/1): 首次挂单手数是否使用use_mulit乘数，从配置文件读取
+        to_twap(0/1): 是否转twap, twap参数从配置文件twap_params中读取
+        delay(int): 忽略该参数，不使用
+        strategy (str, optional): Specify the strategy.
+    """
+
+open_regular(contract, mv)
+    """
+    盘前挂单，必须在8:59之前挂出去
+    用8点59分后的第一个价格作为开盘价，开盘后60秒如果没有成交，直接转twap
+    """
+
+open_delay(contract, mv)
+    """
+    盘前挂单，必须在8:59之前挂出去
+    用8点59分后的第一个价格作为开盘价，
+    市值大于0的情况，用开盘价*（1-0.005），调整到小于等于这个价格的正确价格买入。
+    市值小于0的情况，用开盘价*（1+0.005），调整到大于等于这个价格的正确价格卖出。
+    有挂单成交后转twap，没有成交一直挂到收盘
+    """
+
+best(contract, volume, isopen, time, brokers, strategy='trader')
+    """
+    使用对手价下单，其他和limit相同
+    """
+
+bestmv(contract, mv, isopen, time, brokers, strategy='trader')
+    """
+    使用对手价下单，其他和limitmv相同
+    """
+
+twap(contract, volume, isopen=-1, brokers=None, strategy='trader', period=0.0, interval=0.0)
+    """
+    Place twap order
+    Args:
+        contract (str): Specify the contract to place order. E.g., 'IF2012'
+        volume (int): Specify the volume to place order. E.g., 1
+        isopen (int): 0 is False, 1 is True, 默认系统根据合约净仓位自动判断
+        brokers (list): A list of brokers to place order.
+        strategy (str, optional): Specify the strategy.
+        period(float): twap总下单时间，默认从配置twap_parms读取
+        interval(float): twap下单间隔，默认从配置twap_params读取
+    """
+
+twapmv(contract, mv, isopen=-1, brokers=None, strategy='trader', period=0.0, interval=0.0)
+    """
+    Place twap order
+    Args:
+        contract (str): Specify the contract to place order. E.g., 'IF2012'
+        mv (float): Specify the market value you want to pay for the contract.
+        isopen (int): 0 is False, 1 is True, 默认系统根据合约净仓位自动判断
+        brokers (list): A list of brokers to place order.
+        strategy (str, optional): Specify the strategy.
+        period(float): twap总下单时间，默认从配置twap_parms读取
+        interval(float): twap下单间隔，默认从配置twap_params读取
+    """
+
+mvc(contract, direction, price, mv, isopen, time, brokers, strategy='trader')
+    """Place condition order by market value. Once the price condition is triggered, place limit order at 'price'.
+
+    Args:
+        contract (str): Specify the contract to place order. E.g., 'IF2012'
+        direction (str): Specify the comparision method. 'gt' means 'greater than', 'lt' means 'less than'.
+        price (float): Specify the price as the threshold.
+        mv (float): Specify the market value you want to pay for the contract.
+        isopen (int): 0 is False, 1 is True, 默认系统根据合约净仓位自动判断
+        time (float): mvc转twap时间，0表示不转，默认从配置文件中的list_contract读取limit_time, twap参数从twap_params读取
+        brokers (list, optional): A list of brokers to place order.
+        strategy (str, optional): Specify the strategy.
+    """
+
+volc(contract, direction, price, volume, isopen, time, brokers, strategy='trader')
+    """Place condition order by volume. Once the price condition is triggered, place limit order at 'price'.
+
+    Args:
+        contract (str): Specify the contract to place order. E.g., 'IF2012'
+        direction (str): Specify the comparision method. 'gt' means 'greater than', 'lt' means 'less than'.
+        price (float): Specify the price as the threshold.
+        volume (int): Specify the volume.
+        isopen (int): 0 is False, 1 is True, 默认系统根据合约净仓位自动判断
+        time (float): mvc转twap时间，0表示不转，默认从配置文件中的list_contract读取limit_time, twap参数从twap_params读取
+        brokers (list, optional): A list of brokers to place order.
+        strategy (str, optional): Specify the strategy.
+    """
+
+complete(contract, volume, stoploss_ratio, stoptarget_ratio, time, brokers, strategy='trader')
+    """Open a best order by volume and automatically stop loss or target.
+
+    Args:
+        contract (str): Specify the contract to place order. E.g., 'IF2012'
+        volume (int): Specify the volume.
+        stoploss_ratio (float): Specify the stop loss ratio.
+        stoptarget_ratio (float): Specify the stop target ratio.
+        time (float): Specify the time to transfer this order to market order. Defaults to 0, will not place market order.
+        brokers (list, optional): A list of brokers to place order.
+        strategy (str, optional): Specify the strategy.
+    """
+
+complete_mv(contract, mv, stoploss_ratio, stoptarget_ratio, time, brokers, strategy='trader'):
+    """Open a best order by market value and automatically stop loss or target.
+
+    Args:
+        contract (str): Specify the contract to place order. E.g., 'IF2012'
+        mv (float): Specify the market value you want to pay for the contract.
+        stoploss_ratio (float): Specify the stop loss ratio.
+        stoptarget_ratio (float): Specify the stop target ratio.
+        time (float): Specify the time to transfer this order to market order. Defaults to 0, will not place market order.
+        brokers (list, optional): A list of brokers to place order.
+        strategy (str, optional): Specify the strategy.
+    """
+
+query_price(contract)
+    """
+    Query the max price, min price, best ask price, and best bid price of the given contract.
+    """
+
+reload_config()
+    """
+    Reload configurations in executive_conf.json.
+    """
+
+query_position( brokers):
+    """Query position.
+
+    Args:
+        brokers (list): A list of brokers to query position,默认从running_brokers读取
+    """
+
+set_volume_multiplier(symbol, value)
+    """Set volume multiplier of the given symbol.
+
+    Args:
+        symbol (str): Specify the symbol, e.g., PF
+        value (int): Specify the volume multiplier.
+    """
+
+query_strategy_position(self, strategies, brokers)
+    """Query positions of given strategies.
+
+    Args:
+        strategies (list, optional): A list of strategies.
+        brokers (list, optional): A list of brokers.
+    """
+
+query_strategy_pnl(strategies, brokers)
+    """Query profit and loss of given strategies.
+
+    Args:
+        strategies (list, optional): A list of strategies.
+        brokers (list, optional): A list of brokers.
+    """
+
+reload_order()
+    """
+    从订单数据库中重新读入订单信息，更新策略仓位
+    """
+
+switch_broker(live, brokers)
+    """
+    打开或者关闭账户
+    Args:
+        live(0/1): 0关闭，1打开
+        borkers(list): 账户列表
+    """
+```
+
+## 使用事例
 
 ```python
 # 启动 trade commander
