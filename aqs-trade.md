@@ -322,6 +322,11 @@ volc(contract, direction, price, volume, isopen, time, brokers, strategy='trader
 complete(contract, volume, stoploss_ratio, stoptarget_ratio, time, brokers, strategy='trader')
     """Open a best order by volume and automatically stop loss or target.
 
+    complete目前是符合条件后转市价, 开仓价格为当前合约的lastprice
+    止损：volume > 0, lastprice <= 开仓价* (1 - stoploss_ratio)
+          volume < 0, lastprice >= 开仓价* (1 + stoploss_ratio)
+    止盈：volume > 0, lastprice >= 开仓价 * (1 + stoptarget_ratio)
+          volume < 0, lastprice <= 开仓价*(1 - stoptarget_ratio)
     Args:
         contract (str): Specify the contract to place order. E.g., 'IF2012'
         volume (int): Specify the volume.
@@ -335,6 +340,11 @@ complete(contract, volume, stoploss_ratio, stoptarget_ratio, time, brokers, stra
 complete_mv(contract, mv, stoploss_ratio, stoptarget_ratio, time, brokers, strategy='trader'):
     """Open a best order by market value and automatically stop loss or target.
 
+    complete目前是符合条件后转市价, 开仓价格为当前合约的lastprice
+    止损：mv > 0, lastprice <= 开仓价* (1 - stoploss_ratio)
+          mv < 0, lastprice >= 开仓价* (1 + stoploss_ratio)
+    止盈：mv > 0, lastprice >= 开仓价 * (1 + stoptarget_ratio)
+          mv < 0, lastprice <= 开仓价*(1 - stoptarget_ratio)
     Args:
         contract (str): Specify the contract to place order. E.g., 'IF2012'
         mv (float): Specify the market value you want to pay for the contract.
