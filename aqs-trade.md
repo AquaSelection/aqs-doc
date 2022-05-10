@@ -300,7 +300,7 @@ mvc(contract, direction, price, mv, isopen, time, brokers, strategy='trader')
         price (float): Specify the price as the threshold.
         mv (float): Specify the market value you want to pay for the contract.
         isopen (int): 0 is False, 1 is True, 默认系统根据合约净仓位自动判断
-        time (float): mvc转twap时间，0表示不转，默认从配置文件中的list_contract读取limit_time, twap参数从twap_params读取
+        time (float): 此参数无效，mvc满足价格条件后会立刻转twap，该参数会在下个版本中删除
         brokers (list, optional): A list of brokers to place order.
         strategy (str, optional): Specify the strategy.
     """
@@ -314,7 +314,7 @@ volc(contract, direction, price, volume, isopen, time, brokers, strategy='trader
         price (float): Specify the price as the threshold.
         volume (int): Specify the volume.
         isopen (int): 0 is False, 1 is True, 默认系统根据合约净仓位自动判断
-        time (float): mvc转twap时间，0表示不转，默认从配置文件中的list_contract读取limit_time, twap参数从twap_params读取
+        time (float): 此参数无效，mvc满足价格条件后会立刻转twap，该参数会在下个版本中删除
         brokers (list, optional): A list of brokers to place order.
         strategy (str, optional): Specify the strategy.
     """
