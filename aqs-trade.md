@@ -255,12 +255,12 @@ open_delay(contract, mv)
     有挂单成交后转twap，没有成交一直挂到收盘
     """
 
-best(contract, volume, isopen, time, brokers, strategy='trader')
+best(contract, volume, isopen, time, brokers, to_twap=0, strategy='trader')
     """
     使用对手价下单，其他和limit相同
     """
 
-bestmv(contract, mv, isopen, time, brokers, strategy='trader')
+bestmv(contract, mv, isopen, time, brokers, to_twap=0, strategy='trader')
     """
     使用对手价下单，其他和limitmv相同
     """
