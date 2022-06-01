@@ -143,7 +143,7 @@ limit(contract, price, volume, isopen, time, brokers, use_multi=0, to_twap=1, de
         use_multi(0/1): 首次挂单手数是否使用use_mulit乘数，从配置文件读取
         to_twap(0/1): 是否转twap, twap参数从配置文件twap_params中读取
         delay(int): 忽略该参数，不使用
-        strategy (str, optional): Specify the strategy.
+        strategy (str, optional): Specify the strategy, default trader if use_st=True
     """
 
 market(contract, volume, isopen=-1, brokers=None, strategy='trader')
@@ -221,7 +221,7 @@ marketmv(contract, mv, isopen=-1, brokers=None, strategy='trader')
         mv (float): Specify the market value you want to pay for the contract.
         isopen (int): 0 is False, 1 is True.
         brokers (list, optional): A list of brokers to place order.
-        strategy (str, optional): Specify the strategy.
+        strategy (str, optional): Specify the strategy, default trader if use_st=True
     """
 
 limitmv(contract, price, mv, isopen, time, brokers, use_multi=0, to_twap=1, delay=0, strategy='trader')
@@ -237,7 +237,7 @@ limitmv(contract, price, mv, isopen, time, brokers, use_multi=0, to_twap=1, dela
         use_multi(0/1): 首次挂单手数是否使用use_mulit乘数，从配置文件读取
         to_twap(0/1): 是否转twap, twap参数从配置文件twap_params中读取
         delay(int): 忽略该参数，不使用
-        strategy (str, optional): Specify the strategy.
+        strategy (str, optional): Specify the strategy, default trader if use_st=True
     """
 
 open_regular(contract, mv)
@@ -273,7 +273,7 @@ twap(contract, volume, isopen=-1, brokers=None, strategy='trader', period=0.0, i
         volume (int): Specify the volume to place order. E.g., 1
         isopen (int): 0 is False, 1 is True, 默认系统根据合约净仓位自动判断
         brokers (list): A list of brokers to place order.
-        strategy (str, optional): Specify the strategy.
+        strategy (str, optional): Specify the strategy, default trader if use_st=True
         period(float): twap总下单时间，默认从配置twap_parms读取
         interval(float): twap下单间隔，默认从配置twap_params读取
     """
@@ -286,7 +286,7 @@ twapmv(contract, mv, isopen=-1, brokers=None, strategy='trader', period=0.0, int
         mv (float): Specify the market value you want to pay for the contract.
         isopen (int): 0 is False, 1 is True, 默认系统根据合约净仓位自动判断
         brokers (list): A list of brokers to place order.
-        strategy (str, optional): Specify the strategy.
+        strategy (str, optional): Specify the strategy, default trader if use_st=True
         period(float): twap总下单时间，默认从配置twap_parms读取
         interval(float): twap下单间隔，默认从配置twap_params读取
     """
@@ -302,7 +302,7 @@ mvc(contract, direction, price, mv, isopen, time, brokers, strategy='trader')
         isopen (int): 0 is False, 1 is True, 默认系统根据合约净仓位自动判断
         time (float): 此参数无效，mvc满足价格条件后会立刻转twap，该参数会在下个版本中删除
         brokers (list, optional): A list of brokers to place order.
-        strategy (str, optional): Specify the strategy.
+        strategy (str, optional): Specify the strategy, default trader if use_st=True
     """
 
 volc(contract, direction, price, volume, isopen, time, brokers, strategy='trader')
@@ -316,7 +316,7 @@ volc(contract, direction, price, volume, isopen, time, brokers, strategy='trader
         isopen (int): 0 is False, 1 is True, 默认系统根据合约净仓位自动判断
         time (float): 此参数无效，mvc满足价格条件后会立刻转twap，该参数会在下个版本中删除
         brokers (list, optional): A list of brokers to place order.
-        strategy (str, optional): Specify the strategy.
+        strategy (str, optional): Specify the strategy, default trader if use_st=True
     """
 
 complete(contract, volume, stoploss_ratio, stoptarget_ratio, time, brokers, strategy='trader')
@@ -334,7 +334,7 @@ complete(contract, volume, stoploss_ratio, stoptarget_ratio, time, brokers, stra
         stoptarget_ratio (float): Specify the stop target ratio.
         time (float): Specify the time to transfer this order to market order. Defaults to 0, will not place market order.
         brokers (list, optional): A list of brokers to place order.
-        strategy (str, optional): Specify the strategy.
+        strategy (str, optional): Specify the strategy, default trader if use_st=True
     """
 
 complete_mv(contract, mv, stoploss_ratio, stoptarget_ratio, time, brokers, strategy='trader'):
@@ -352,7 +352,49 @@ complete_mv(contract, mv, stoploss_ratio, stoptarget_ratio, time, brokers, strat
         stoptarget_ratio (float): Specify the stop target ratio.
         time (float): Specify the time to transfer this order to market order. Defaults to 0, will not place market order.
         brokers (list, optional): A list of brokers to place order.
-        strategy (str, optional): Specify the strategy.
+        strategy (str, optional): Specify the strategy, default trader if use_st=True
+    """
+
+time_order(contract, time, limit_px, volume, isopen=-1):
+    """
+    Place time condition order
+    eg: time_order(rb, '09:00:00', 4900, 100)
+         表示在9：00：00秒以4900的价格买入100手rb
+    Args:
+        contract (str): Specify the contract to place order. E.g., 'IF2012'
+        time (str): 下单时间，格式为"09:00:00", "13:21:59"(时:分:秒)
+        limit_px (int): 满足条件时下单的价格
+        volume (int): Specify the volume.
+        isopen (int): 0 is False, 1 is True, 默认系统根据合约净仓位自动判断
+    """
+
+time_order_mv(contract, time, limit_px, mv, isopen=-1):
+    """
+    Place time condition order
+    同time_order，使用市值下单
+    """
+
+condition(contract, cond, limit_px, volume, isopen=-1):
+    """
+    Place price condition order
+    eg: condition(rb, >=4900, 4910, 100）
+    表示当rb价格大于等于4900 的时候用4910买入100手
+    condition(rb, <=4600, 4590, -100)
+    表示当rb价格小于等于4600 的时候用4590卖出100手。
+    挂单时间和方式： 满足立刻挂出去，全部一次性挂出去，不分批。
+    一直挂着，如果没有全部成交，不转市价也不转twap, 就一直挂着。
+    Args:
+        contract (str): Specify the contract to place order. E.g., 'IF2012'
+        cond (str): 分别填'>=4900'，'<=5100', '>3100','<2800',格式是条件和价格写在一起
+        limit_px (int): 满足条件时下单的价格
+        volume (int): Specify the volume.
+        isopen (int): 0 is False, 1 is True, 默认系统根据合约净仓位自动判断
+    """
+
+condition_mv(contract, cond, limit_px, mv, isopen=-1):
+    """
+    Place price condition order
+    同condition，使用市值下单
     """
 
 query_price(contract)
