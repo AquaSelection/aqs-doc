@@ -186,7 +186,7 @@ flatten(ratio, contracts, brokers=None, strategies=[], twap=1, pos_dir=0, end=Fa
         brokers (list): A list of brokers to flatten order, 默认从running_brokers中读取
         strategies (list, optional): A list of strategies, will flatten order according to the order of this strategy list.
         twap(0/1): 是否转twap, twap参数从配置文件twap_params中读取
-        pos_dir(0/1/2): 1平多头仓位，2平空头仓位，0全平
+        pos_dir(0/1/2): 1平多头仓位，2平空头仓位，0平净仓位
         end (bool, optional): If False, flatten order at once. If True, wait until the market is going to close, and then flatten order.
     """
        
@@ -210,7 +210,7 @@ bestft(ratio, contracts, brokers=None, strategies=[], twap=0, pos_dir=0)
         brokers (list, optional): A list of brokers to flatten order.
         strategies (list, optional): A list of strategies, will flatten order according to the order of this strategy list.
         twap(0/1): 是否转twap, twap参数从配置文件twap_params中读取
-        pos_dir(0/1/2): 1平多头仓位，2平空头仓位，0全平
+        pos_dir(0/1/2): 1平多头仓位，2平空头仓位，0平净仓位
     """
 
 marketmv(contract, mv, isopen=-1, brokers=None, strategy='trader')
