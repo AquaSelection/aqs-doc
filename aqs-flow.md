@@ -6,7 +6,7 @@
 请使用 python3.5 及以上版本。
 
 ```python
-from aqs_flow import futures_data.FuturesData
+from aqs_flow.futures_data import FuturesData
 t1 = FuturesData()
 ```
 ### 日志
