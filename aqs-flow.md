@@ -251,7 +251,7 @@ df = t1.get_symbol_his_tick(symbol=['i', 'j'], from_date=20220101, to_date=20220
 * to_date: 结束的交易日（包含）
 
 ```python
-df = t1.get_product_info(from_date=20220101, to_date=20220501, symbols=['i', 'j'])
+list_contracts = t1.get_product_info(from_date=20220101, to_date=20220501, symbols=['i', 'j'])
 ```
 
 ### 示例代码
@@ -261,7 +261,7 @@ from aqs_flow.futures_data import FuturesData
 if __name__ == '__main__':
     t1 = FuturesData()
     df = t1.get_contract_today_tick(contracts=['i2206', 'j2206'])
-    df = t1.get_product_info(from_date=20220101, to_date=20220501, symbols=['i', 'j'])
+    list_contracts = t1.get_product_info(from_date=20220101, to_date=20220501, symbols=['i', 'j'])
     df = t1.get_symbol_his_tick(from_date=20190101, to_date=20190107, symbols=['i', 'j'])
     df = t1.get_contract_his_tick(from_date=20190101, to_date=20190507, contracts=['rb1909'])
     df = t1.get_symbol_his_tick(from_date=20210301, to_date=20210307, symbols=['a', 'b'])
