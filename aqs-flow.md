@@ -1,6 +1,6 @@
 # aqs_flow API 说明
 
-## 期货
+## 期货/期权
 
 
 请使用 python3.5 及以上版本。
@@ -20,15 +20,60 @@ t1 = FuturesData()
 
 ### 数据说明
 
-#### level1 20160101 - 现在
-#### level2 20210301 - 现在 20210301 - 20220301 目前只支持MDBestAndDeep和MDOrderStatistic
-#### levle2 大商所当天数据收盘后一段时间才能查询到
-#### 目前只支持大商所level2
+#### 期货现货数据
 
+##### level1 20100101 - 现在
+##### level2 20210301 - 现在 20210301 - 20220301 目前只支持MDBestAndDeep和MDOrderStatistic
+##### levle2 大商所当天数据收盘后一段时间才能查询到
+##### 目前只支持大商所level2
+
+#### 期货期权数据
+
+##### level1 20220802 - 现在
 
 ### 相关类型字段含义如下
 
-#### MDBestAndDeep：最优与五档深度行情
+#### 现货数据
+
+##### level1
+```c++
+┌─name────────────┬─type───────────┬
+│ instr_id        │ String         │
+│ trading_day     │ UInt32         │
+│ action_day      │ UInt32         │
+│ local_ts        │ UInt64         │
+│ time            │ UInt16         │
+│ second          │ UInt8          │
+│ milli_sec       │ UInt16         │
+│ lastprice       │ Float64        │
+│ day_open        │ Float64        │
+│ day_high        │ Float64        │
+│ day_low         │ Float64        │
+│ tick_close      │ Float64        │
+│ tick_volume     │ Int32          │
+│ total_volume    │ Int32          │
+│ tick_opi_change │ Float64        │
+│ total_opi       │ Float64        │
+│ tick_turnover   │ Float64        │
+│ total_turnover  │ Float64        │
+│ upper_limit     │ Float64        │
+│ lower_limit     │ Float64        │
+│ pre_settlement  │ Float64        │
+│ pre_close       │ Float64        │
+│ pre_opi         │ Float64        │
+│ settlement      │ Float64        │
+│ total_average   │ Float64        │
+│ tick_average    │ Float64        │
+│ bid_price       │ Array(Float64) │
+│ bid_volume      │ Array(Float64) │
+│ ask_price       │ Array(Float64) │
+│ ask_volume      │ Array(Float64) │
+└─────────────────┴────────────────┴
+```
+
+##### level2
+
+###### MDBestAndDeep：最优与五档深度行情
 ```c++
 struct MDBestAndDeep
 {
@@ -99,7 +144,7 @@ struct MDBestAndDeep
 }THYQuote;
 ```
 
-#### MDTenEntrust：最优价位上十笔委托
+###### MDTenEntrust：最优价位上十笔委托
 
 ```c++
 struct MDTenEntrust
@@ -132,7 +177,7 @@ struct MDTenEntrust
 }TENENTRUST;
 ```
 
-#### MDOrderStatistic：加权平均以及委托总量行情
+###### MDOrderStatistic：加权平均以及委托总量行情
 
 ```c++
 struct MDOrderStatistic
@@ -145,7 +190,7 @@ struct MDOrderStatistic
     REAL8       WeightedAverageSellOrderPrice;        //加权平均委卖价格
 }ORDERSTATISTIC;
 ```
-#### MDRealTimePrice：实时结算价
+###### MDRealTimePrice：实时结算价
 
 ```c++
 struct MDRealTimePrice
@@ -156,7 +201,7 @@ struct MDRealTimePrice
 }REALTIMEPRICE;
 ```
 
-#### MDMarchPriceQty：分价位成交
+###### MDMarchPriceQty：分价位成交
 
 ```c++
 struct MDMarchPriceQty
@@ -190,8 +235,45 @@ struct MDMarchPriceQty
     UINT4       PriceFiveSEQty;                       //卖平数量
 }MARCHPRICEQTY;
 ```
+#### 期货数据
 
-### 历史行情
+##### level1
+
+```c++
+┌─name────────────┬─type───────────┬
+│ instr_id        │ String         │
+│ trading_day     │ UInt32         │
+│ action_day      │ UInt32         │
+│ local_ts        │ UInt64         │
+│ time            │ UInt16         │
+│ second          │ UInt8          │
+│ milli_sec       │ UInt16         │
+│ lastprice       │ Float64        │
+│ day_open        │ Float64        │
+│ day_high        │ Float64        │
+│ day_low         │ Float64        │
+│ tick_close      │ Float64        │
+│ tick_volume     │ Int32          │
+│ total_volume    │ Int32          │
+│ tick_opi_change │ Float64        │
+│ total_opi       │ Float64        │
+│ tick_turnover   │ Float64        │
+│ total_turnover  │ Float64        │
+│ upper_limit     │ Float64        │
+│ lower_limit     │ Float64        │
+│ pre_settlement  │ Float64        │
+│ pre_close       │ Float64        │
+│ pre_opi         │ Float64        │
+│ settlement      │ Float64        │
+│ total_average   │ Float64        │
+│ tick_average    │ Float64        │
+│ bid_price       │ Array(Float64) │
+│ bid_volume      │ Array(Float64) │
+│ ask_price       │ Array(Float64) │
+│ ask_volume      │ Array(Float64) │
+└─────────────────┴────────────────┴
+```
+### 接口示例
 
 #### get_contract_his_tick
 
@@ -203,9 +285,11 @@ struct MDMarchPriceQty
 * to_date: 结束的交易日（包含）
 * fields: 显示的列名，不填则显示所有列的数据
 * is_level2：是否为level2行情，默认为False
+* is_option：是否为期权行情，默认为False
 * is_type：levle2行情类型, 1为MDBestAandDeep；2为MDTenEntrust；3为MDRealTimePrice，4为MDOrderStatistic；5为MDMarchPriceQty，默认值为1
 
 ```python
+df = t1.get_contract_his_tick(contracts=['pg2209-C-5250', 'MO2208-C-6800'], from_date=20210301, to_date=20210307, is_option=True)
 df = t1.get_contract_his_tick(contracts=['i2201', 'j2202'], from_date=20220101, to_date=20220109, fields=['instr_id', 'lastprice'])
 ```
 
@@ -217,10 +301,12 @@ df = t1.get_contract_his_tick(contracts=['i2201', 'j2202'], from_date=20220101, 
 * contracts: 合约列表
 * fields: 显示的列名，不填则显示所有列的数据
 * is_level2：是否为level2行情，默认为False
+* is_option：是否为期权行情，默认为False
 * is_type：levle2行情类型, 1为MDBestAandDeep；2为MDTenEntrust；3为MDRealTimePrice，4为MDOrderStatistic；5为MDMarchPriceQty，默认值为1
 
 ```python
 df = t1.get_contract_today_tick(contracts=['i2201', 'j2202'], fields=['instr_id', 'lastprice'])
+df = t1.get_contract_today_tick(contracts=['au2212C408', 'IO2209-C-4400'], fields=['instr_id', 'lastprice'], is_option=True)
 ```
 
 
@@ -234,11 +320,13 @@ df = t1.get_contract_today_tick(contracts=['i2201', 'j2202'], fields=['instr_id'
 * to_date: 结束的交易日（包含）
 * fields: 显示的列名，不填则显示所有列的数据
 * is_level2：是否为level2行情，默认为False
+* is_option：是否为期权行情，默认为False
 * is_type：levle2行情类型, 1为MDBestAandDeep；2为MDTenEntrust；3为MDRealTimePrice，4为MDOrderStatistic；5为MDMarchPriceQty，默认值为1
 
 ```python
 # 查询i、j的合约的历史tick数据
 df = t1.get_symbol_his_tick(symbol=['i', 'j'], from_date=20220101, to_date=20220109, fields=['instr_id', 'lastprice'])
+df = t1.get_symbol_his_tick(symbol=['MO', 'MA'], from_date=20220802, to_date=20220802, is_option=True, fields=['instr_id'])
 ```
 
 #### get_product_info
@@ -250,6 +338,8 @@ df = t1.get_symbol_his_tick(symbol=['i', 'j'], from_date=20220101, to_date=20220
 * from_date: 开始的交易日（包含）
 * to_date: 结束的交易日（包含）
 
+返回：list
+
 ```python
 list_contracts = t1.get_product_info(from_date=20220101, to_date=20220501, symbols=['i', 'j'])
 ```
@@ -260,16 +350,26 @@ from aqs_flow.futures_data import FuturesData
 
 if __name__ == '__main__':
     t1 = FuturesData()
-    df = t1.get_contract_today_tick(contracts=['i2206', 'j2206'])
+    
+    # 获取某一段时间参与交易的合约
     list_contracts = t1.get_product_info(from_date=20220101, to_date=20220501, symbols=['i', 'j'])
+
+    # 获取level1行情
+    df = t1.get_contract_today_tick(contracts=['i2206', 'j2206'])
     df = t1.get_symbol_his_tick(from_date=20190101, to_date=20190107, symbols=['i', 'j'])
     df = t1.get_contract_his_tick(from_date=20190101, to_date=20190507, contracts=['rb1909'])
-    df = t1.get_symbol_his_tick(from_date=20210301, to_date=20210307, symbols=['a', 'b'])
 
     # 获取level2行情
+    df = t1.get_contract_today_tick(contracts=['i2206', 'j2206'], is_level2=True, is_type=1)
+    df = t1.get_contract_today_tick(contracts=['i2206', 'j2206'], is_level2=True, is_type=5)
     df = t1.get_symbol_his_tick(from_date=20210301, to_date=20210307, symbols=['a', 'b'], is_level2=True, is_type=1)
     df = t1.get_symbol_his_tick(from_date=20210301, to_date=20210307, symbols=['a', 'b'], is_level2=True, is_type=5)
     df = t1.get_contract_his_tick(from_date=20210301, to_date=20210307, contracts=['a2105', 'b2105'], is_level2=True, is_type=1)
     df = t1.get_contract_his_tick(from_date=20210301, to_date=20210307, contracts=['a2105', 'b2105'], is_level2=True, is_type=5)
-    print(df)
+
+    # 获取期权数据
+    df = t1.get_symbol_his_tick(from_date=20210301, to_date=20210307, symbols=['pg', 'MO'], is_option=True)
+    df = t1.get_contract_his_tick(from_date=20210301, to_date=20210307, contracts=['pg2209-C-5250', 'MO2208-C-6800'], is_option=True)
 ```
+
+
